@@ -1,0 +1,80 @@
+---
+title: "visual illusion"
+output: html_document
+---
+
+# setting
+
+```{r setup, include=FALSE}
+rm(list = ls())
+setwd("~/Desktop/visual_illusion/gif/")
+```
+
+## library
+
+```{r}
+library(grid)
+library(ggmap) # For theme_nothing()
+library(gganimate)
+library(gapminder)
+library(tidyverse)
+```
+
+# Visual Illusion 
+
+## sample
+
+```{r}
+d <- data.frame(
+  x1 = 1:10, x2 = 2:11,
+  y1 = 4, y2 = 5,
+  t = 1:10
+)
+
+# Creating the gradient background
+g <- rasterGrob(
+  t(colorRampPalette(c("#000000", "#FFFFFF"))(1000)),
+  width = unit(1, "npc"), height = unit(1, "npc")
+)
+
+p <- ggplot() +
+  annotation_custom(g, -Inf, Inf, -Inf, Inf) +
+  geom_rect(
+    data = d,
+    mapping = aes(xmin = x1, xmax = x2, ymin = y1, ymax = y2),
+    color = "black", fill = "#7E7E7E"
+  ) +
+  ylim(c(1, 8)) +
+  theme_nothing() +
+  transition_time(t)
+
+# save
+animate(p, nframes = 24, renderer = gifski_renderer("gganim.gif"))
+```
+
+## ライラックチェイサー
+
+```{r}
+center <- data.frame(x=0,y=0)
+base <- data.frame(
+  x = cos(seq(0,2*pi,len=13))[-13],
+  y = sin(seq(0,2*pi,len=13))[-13]
+)
+trans <- data.frame(
+  x = cos(seq(0,2*pi,len=13))[-13],
+  y = sin(seq(0,2*pi,len=13))[-13],
+  t = 1:12
+)
+p <- ggplot() +
+  theme_nothing() + 
+  theme(panel.background=element_rect(fill = "#999999")) + 
+  geom_point(data=center,aes(x=x,y=y),shape=43,size=15) +
+  geom_point(data=base,aes(x=x,y=y),
+             size=20, alpha=1, colour="#B69BC5") + 
+  geom_point(data=trans, aes(x=x,y=y),
+             size=30, colour="#999999") + 
+  transition_time(t)
+
+animate(p, nframes = 20, renderer = gifski_renderer("gif/gganim20.gif"))
+```
+
